@@ -16,13 +16,9 @@
 */
 
 #include "VMFactory.h"
-#include <libdevcore/Assertions.h>
-#include "VM.h"
-
-#if ETH_EVMJIT
 #include "EVMC.h"
 #include "SmartVM.h"
-#endif
+#include "VM.h"
 
 namespace po = boost::program_options;
 
@@ -53,6 +49,9 @@ VMKindTableEntry vmKindsTable[] = {
 #if ETH_EVMJIT
     {VMKind::JIT, "jit"},
     {VMKind::Smart, "smart"},
+#endif
+#if ETH_HERA
+    {VMKind::Hera, "hera"},
 #endif
 };
 }
@@ -118,21 +117,21 @@ std::unique_ptr<VMFace> VMFactory::create()
 
 std::unique_ptr<VMFace> VMFactory::create(VMKind _kind)
 {
-#if ETH_EVMJIT
     switch (_kind)
     {
-    default:
-    case VMKind::Interpreter:
-        return std::unique_ptr<VMFace>(new VM);
+#ifdef ETH_EVMJIT
     case VMKind::JIT:
         return std::unique_ptr<VMFace>(new EVMJIT);
     case VMKind::Smart:
         return std::unique_ptr<VMFace>(new SmartVM);
-    }
-#else
-    asserts(_kind == VMKind::Interpreter && "JIT disabled in build configuration");
-    return std::unique_ptr<VMFace>(new VM);
 #endif
+#ifdef ETH_HERA
+    case VMKind::Hera:
+        return std::unique_ptr<VMFace>(new HeraVM);
+#endif
+    default:
+        return std::unique_ptr<VMFace>(new VM);
+    }
 }
 }
 }

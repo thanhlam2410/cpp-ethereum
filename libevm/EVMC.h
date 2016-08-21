@@ -1,6 +1,7 @@
 #pragma once
 
 #include <evmjit.h>
+#include <hera.h>
 #include <libevm/VMFace.h>
 
 // FIXME: Move to EVM-C evm.h.
@@ -29,5 +30,6 @@ private:
 };
 
 using EVMJIT = EVMC<evmjit_create>;
+using HeraVM = EVMC<hera_create>;
 }
 }
