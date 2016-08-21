@@ -10,7 +10,7 @@ set(SOURCES
 	VMFactory.cpp
 )
 
-if (EVMJIT)
+if (EVMJIT OR HERA)
 	list(APPEND SOURCES
         EVMC.cpp
 		SmartVM.cpp
@@ -27,4 +27,9 @@ target_include_directories(evm PUBLIC ${CMAKE_SOURCE_DIR}/evmjit/include)
 if (EVMJIT)
 	target_link_libraries(evm PRIVATE evmjit)
 	target_compile_definitions(evm PRIVATE ETH_EVMJIT)
+endif()
+
+if (HERA)
+	target_link_libraries(evm PRIVATE hera)
+    target_compile_definitions(evm PRIVATE ETH_HERA)
 endif()

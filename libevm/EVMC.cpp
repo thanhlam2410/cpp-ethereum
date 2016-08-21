@@ -168,6 +168,9 @@ void EVMC<createFn>::compile(evm_revision _mode, uint32_t _flags, bytesConstRef 
 // FIXME: This must be fixed, probably we should not overuse static methods.
 template class EVMC<evmjit_create>;
 #endif
+#if ETH_HERA
+template class EVMC<hera_create>;
+#endif
 
 }
 }

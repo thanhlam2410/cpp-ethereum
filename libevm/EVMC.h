@@ -6,6 +6,9 @@
 // FIXME: Move to EVM-C evm.h.
 typedef struct evm_instance* (*evm_create_fn)(void);
 
+// FIXME: Include from Here when ready there.
+extern "C" struct evm_instance* hera_create(void);
+
 namespace dev
 {
 namespace eth
@@ -29,5 +32,6 @@ private:
 };
 
 using EVMJIT = EVMC<evmjit_create>;
+using HeraVM = EVMC<hera_create>;
 }
 }
