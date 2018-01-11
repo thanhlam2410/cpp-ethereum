@@ -50,6 +50,9 @@ VMKindTableEntry vmKindsTable[] = {
     {VMKind::JIT, "jit"},
     {VMKind::Smart, "smart"},
 #endif
+#if ETH_HERA
+    {VMKind::Hera, "hera"},
+#endif
 };
 }
 
