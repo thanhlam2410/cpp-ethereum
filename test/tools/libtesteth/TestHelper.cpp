@@ -382,6 +382,35 @@ string compileLLL(string const& _code)
 #endif
 }
 
+#include <wasm-binary.h>
+#include <wasm-s-parser.h>
+
+/* from https://github.com/ewasm/evm2wasm */
+bytes wast2wasm(string input, bool debug = false) {
+  wasm::Module wasm;
+
+  try {
+    wasm::SExpressionParser parser(const_cast<char*>(input.c_str()));
+    wasm::Element& root = *parser.root;
+    wasm::SExpressionWasmBuilder builder(wasm, *root[0]);
+  } catch (wasm::ParseException& p) {
+    ostringstream err;
+    p.dump(err);
+    BOOST_ERROR("Error parsing wasm: " + err.str());
+  }
+
+  // FIXME: perhaps call validate() here?
+
+  wasm::BufferWithRandomAccess buffer(debug);
+  wasm::WasmBinaryWriter writer(&wasm, buffer, debug);
+  writer.write();
+
+  ostringstream output;
+  buffer.writeTo(output);
+
+  return bytes(output.begin(), output.end());
+}
+
 void checkHexHasEvenLength(string const& _str)
 {
     if (_str.size() % 2)
@@ -395,10 +424,14 @@ bytes importCode(json_spirit::mObject const& _o)
     if (_o.count("code") == 0)
         return code;
     if (_o.at("code").type() == json_spirit::str_type)
-        if (_o.at("code").get_str().find("0x") != 0)
+    {
+        if (_o.at("code").get_str().find("(module") == 0)
+            code = wast2wasm(_o.at("code").get_str());
+        else if (_o.at("code").get_str().find("0x") != 0)
             code = fromHex(compileLLL(_o.at("code").get_str()));
         else
             code = importByteArray(_o.at("code").get_str());
+    }
     else if (_o.at("code").type() == json_spirit::array_type)
     {
         code.clear();
